@@ -38,7 +38,7 @@ class BuildFailed(Exception):
     pass
 
 
-def getCythonOptions():
+def get_cython_options():
     # from sqlalchemy setup.py
     from distutils.errors import CCompilerError, DistutilsExecError, DistutilsPlatformError
     ext_errors = (CCompilerError, DistutilsExecError, DistutilsPlatformError)
@@ -165,7 +165,7 @@ def load_description():
 
 def run_setup(CYTHON):
     if CYTHON:
-        cmdclass, ext_modules = getCythonOptions()
+        cmdclass, ext_modules = get_cython_options()
     else:
         cmdclass, ext_modules = {}, []
 
