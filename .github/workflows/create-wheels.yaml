@@ -78,7 +78,7 @@ jobs:
 
       - name: Check c extensions
         run: |
-          python -c 'from falcon.cyutil import misc, reader, uri'
+          python -c 'import sys; sys.path.pop(0); from falcon.cyutil import misc, reader, uri'
 
       - name: Test created wheel
         env:
@@ -188,7 +188,7 @@ jobs:
         # the action uses the image for manylinux2010 but can generate also a manylinux1 wheel
         # change the tag of this image to change the image used
         uses: RalfG/python-wheels-manylinux-build@v0.3.1-manylinux2014_x86_64 
-        # this action generates 4 wheels in dist/. linux, manylinux1, manylinux2010 and manylinux2014 
+        # this action generates 2 wheels in dist/. linux, manylinux2014
         with:
           # python-versions is the output of the previous step and is in the form <python tag>-<abi tag>. Eg cp37-cp37mu
           python-versions: ${{ matrix.python-version }}
@@ -214,7 +214,7 @@ jobs:
           if [[ "${{ matrix.python-version }}" = "$version" ]]
           then
             pip install -f dist --no-index falcon_caselit
-            python -c 'from falcon.cyutil import misc, reader, uri'
+            python -c 'import sys; sys.path.pop(0); from falcon.cyutil import misc, reader, uri'
             pip install pytest -r requirements/tests
             pytest -q tests ${{ matrix.pytest-extra }}
           else
@@ -228,6 +228,7 @@ jobs:
         # Pypi accepts only the manylinux versions
         run: |
           cd dist
+          ls -l
           echo ::set-output name=wheel1::`ls *manylinux1*`
           echo ::set-output name=wheel2010::`ls *manylinux2010*`
           echo ::set-output name=wheel2014::`ls *manylinux2014*`
