@@ -177,6 +177,8 @@ jobs:
         uses: RalfG/python-wheels-manylinux-build@v0.3.1-manylinux2014_x86_64 
         # this action generates 2 wheels in dist/. linux, manylinux2014
         with:
+          # Remove previous original wheel just to be sure it is recreated. Should not be needed
+          pre-build-command: 'rm ./dist/*-linux*.whl'
           # python-versions is the output of the previous step and is in the form <python tag>-<abi tag>. Eg cp37-cp37mu
           python-versions: ${{ matrix.python-version }}
           build-requirements: "setuptools>=44 wheel>=0.34 cython>=0.29.21"
