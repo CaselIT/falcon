@@ -723,7 +723,7 @@ To test this example go to the another terminal and run:
 
     $ http localhost:8000/1/things authorization:custom-token
 
-To visualize the application configuration the :ref:`inspect` can be used:
+To visualize the application configuration the *Inspect Module* can be used:
 
 .. code:: bash
 
