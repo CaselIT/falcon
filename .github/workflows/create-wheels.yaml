@@ -251,9 +251,6 @@ jobs:
         os:
           - "ubuntu-latest"
         python-version:
-          - "3.5"
-          - "3.6"
-          - "3.7"
           - "3.8"
         architecture:
           - x64
@@ -270,10 +267,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: ${{ matrix.architecture }}
 
-      - name: Create c files and sdist
-        # create the wheel using --no-use-pep517 since locally we have pyproject
-        # this flag should be removed once falcon supports pep517
-        # `--no-deps` is used to only generate the wheel for the current library. Redundant in falcon since it has no dependencies
+      - name: Create sdist
+        # TODO Are the generated c files always the same regardless of the python 3 version?
         run: |
           python -m pip install --upgrade pip
           pip --version
