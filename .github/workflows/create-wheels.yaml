@@ -242,3 +242,73 @@ jobs:
         run: |
           pip install -U twine
           twine upload --skip-existing dist/*manylinux*
+
+  make-source-dist:
+    name: ${{ matrix.python-version }}-${{ matrix.architecture }}-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - "ubuntu-latest"
+        python-version:
+          - "3.5"
+          - "3.6"
+          - "3.7"
+          - "3.8"
+        architecture:
+          - x64
+
+      fail-fast: false
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: ${{ matrix.architecture }}
+
+      - name: Create c files and sdist
+        # create the wheel using --no-use-pep517 since locally we have pyproject
+        # this flag should be removed once falcon supports pep517
+        # `--no-deps` is used to only generate the wheel for the current library. Redundant in falcon since it has no dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip --version
+          pip install setuptools>=44 wheel>=0.34 cython>=0.29.21
+          python setup.py build_ext --inplace
+          python .\setup.py sdist --dist-dir dist
+
+      - name: Get sdist name
+        id: sdist-name
+        shell: bash
+        # creates output from https://github.community/t5/GitHub-Actions/Using-the-output-of-run-inside-of-if-condition/td-p/33920
+        run: |
+          echo ::set-output name=sdist::`ls dist`
+
+      - name: Upload sdist to release
+        # upload the generated sdist to the github release.
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # this is a release to the event is called release: https://help.github.com/en/actions/reference/events-that-trigger-workflows#release-event-release
+          # the release event has the structure of this response https://developer.github.com/v3/repos/releases/#create-a-release
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: dist/${{ steps.sdist-name.outputs.sdist }}
+          asset_name: ${{ steps.sdist-name.outputs.sdist }}
+          asset_content_type: application/zip # application/octet-stream
+
+      - name: Publish wheel
+        # the action https://github.com/marketplace/actions/pypi-publish runs only on linux and we cannot specify
+        # additional options
+        env:
+          TWINE_USERNAME: __token__
+          # replace TWINE_PASSWORD with token for real pypi
+          TWINE_PASSWORD: ${{ secrets.test_pypi_token }}
+          # TWINE_PASSWORD: ${{ secrets.pypi_token }}
+        run: |
+          pip install -U twine
+          twine upload --skip-existing dist/*
