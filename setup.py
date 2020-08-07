@@ -153,7 +153,6 @@ setup(
         'Operating System :: POSIX',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: WSGI',
-        'Topic :: Internet :: WWW/HTTP :: ASGI',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Programming Language :: Python',
         'Programming Language :: Python :: Implementation :: CPython',

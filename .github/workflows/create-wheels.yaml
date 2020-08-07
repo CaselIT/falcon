@@ -244,7 +244,7 @@ jobs:
           twine upload --skip-existing dist/*manylinux*
 
   make-source-dist:
-    name: ${{ matrix.python-version }}-${{ matrix.architecture }}-${{ matrix.os }}
+    name: sdist-${{ matrix.python-version }}-${{ matrix.architecture }}-${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -278,8 +278,8 @@ jobs:
           python -m pip install --upgrade pip
           pip --version
           pip install setuptools>=44 wheel>=0.34 cython>=0.29.21
-          python setup.py build_ext --inplace
-          python .\setup.py sdist --dist-dir dist
+          cythonize -3 falcon/**/*.pyx
+          python setup.py sdist --dist-dir dist
 
       - name: Get sdist name
         id: sdist-name
