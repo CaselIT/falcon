@@ -65,7 +65,7 @@ jobs:
           FALCON_ASGI_WRAP_NON_COROUTINES: Y
           FALCON_TESTING_SESSION: Y
         run: |
-          pip install -f dist --no-index falcon
+          pip install -f dist --no-index falcon_caselit
           python -c 'import sys; sys.path.pop(0); from falcon.cyutil import misc, reader, uri'
           pip install 'setuptools>=44'
           pip install -r requirements/tests
@@ -181,7 +181,7 @@ jobs:
           FALCON_TESTING_SESSION: Y
         run: |
           pip install 'setuptools>=44'
-          pip install -f dist --no-index falcon
+          pip install -f dist --no-index falcon_caselit
           python -c 'import sys; sys.path.pop(0); from falcon.cyutil import misc, reader, uri'
           pip install -r requirements/tests
           pytest -q tests ${{ matrix.pytest-extra }}
@@ -360,7 +360,7 @@ jobs:
             bash -c "
             export PATH=/opt/python/${{ matrix.python-version }}/bin:$PATH &&
             yum install -y openssl-devel &&
-            pip install -f dist --no-index falcon &&
+            pip install -f dist --no-index falcon_caselit &&
             pip install 'setuptools>=44' 'cryptography<3.2' &&
             python -c 'import sys; sys.path.pop(0); from falcon.cyutil import misc, reader, uri' &&
             [[ $PYTHON_VERSION != 'cp35-cp35m' ]] && (
@@ -390,7 +390,7 @@ jobs:
             bash -c "
             export PATH=/opt/python/${{ matrix.python-version }}/bin:$PATH &&
             yum install -y openssl-devel &&
-            pip install -f dist --no-index falcon &&
+            pip install -f dist --no-index falcon_caselit &&
             pip install 'setuptools>=44' 'cryptography<3.2' &&
             python -c 'import sys; sys.path.pop(0); from falcon.cyutil import misc, reader, uri' &&
             pip install -r requirements/tests &&
