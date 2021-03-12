@@ -70,24 +70,24 @@ jobs:
           pip install tox
           tox -e wheel_check -- ${{ matrix.pytest-extra }}
 
-      - name: Upload wheels to release
-        # upload the generated wheels to the github release
-        uses: AButler/upload-release-assets@v2.0
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          files: 'dist/*.whl'
+      # - name: Upload wheels to release
+      #   # upload the generated wheels to the github release
+      #   uses: AButler/upload-release-assets@v2.0
+      #   with:
+      #     repo-token: ${{ secrets.GITHUB_TOKEN }}
+      #     files: 'dist/*.whl'
 
-      - name: Publish wheel
-        # the action https://github.com/marketplace/actions/pypi-publish runs only on linux and we cannot specify
-        # additional options
-        env:
-          TWINE_USERNAME: __token__
-          # replace TWINE_PASSWORD with token for real pypi
-          TWINE_PASSWORD: ${{ secrets.test_pypi_token }}
-          # TWINE_PASSWORD: ${{ secrets.pypi_token }}
-        run: |
-          pip install -U twine
-          twine upload --skip-existing dist/*
+      # - name: Publish wheel
+      #   # the action https://github.com/marketplace/actions/pypi-publish runs only on linux and we cannot specify
+      #   # additional options
+      #   env:
+      #     TWINE_USERNAME: __token__
+      #     # replace TWINE_PASSWORD with token for real pypi
+      #     TWINE_PASSWORD: ${{ secrets.test_pypi_token }}
+      #     # TWINE_PASSWORD: ${{ secrets.pypi_token }}
+      #   run: |
+      #     pip install -U twine
+      #     twine upload --skip-existing dist/*
 
   make-wheel-linux:
     # see also comments in the make-wheel-win-osx job for details on the steps
@@ -170,23 +170,23 @@ jobs:
           pip install tox
           tox -e wheel_check -- ${{ matrix.pytest-extra }}
 
-      - name: Upload wheels to release
-        # upload the generated wheels to the github release
-        uses: AButler/upload-release-assets@v2.0
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          files: 'dist/*manylinux*'
+      # - name: Upload wheels to release
+      #   # upload the generated wheels to the github release
+      #   uses: AButler/upload-release-assets@v2.0
+      #   with:
+      #     repo-token: ${{ secrets.GITHUB_TOKEN }}
+      #     files: 'dist/*manylinux*'
 
-      - name: Publish wheel
-        # We upload all manylinux wheels. pip will download the appropriate one according to the system.
-        env:
-          TWINE_USERNAME: __token__
-          # replace TWINE_PASSWORD with token for real pypi
-          TWINE_PASSWORD: ${{ secrets.test_pypi_token }}
-          # TWINE_PASSWORD: ${{ secrets.pypi_token }}
-        run: |
-          pip install -U twine
-          twine upload --skip-existing dist/*manylinux*
+      # - name: Publish wheel
+      #   # We upload all manylinux wheels. pip will download the appropriate one according to the system.
+      #   env:
+      #     TWINE_USERNAME: __token__
+      #     # replace TWINE_PASSWORD with token for real pypi
+      #     TWINE_PASSWORD: ${{ secrets.test_pypi_token }}
+      #     # TWINE_PASSWORD: ${{ secrets.pypi_token }}
+      #   run: |
+      #     pip install -U twine
+      #     twine upload --skip-existing dist/*manylinux*
 
   make-source-dist:
     # see also comments in the make-wheel-win-osx job for details on the steps
@@ -223,7 +223,7 @@ jobs:
           pip install setuptools>=44 wheel>=0.34 cython>=0.29.21
           # cythonize -3 falcon/**/*.pyx
           python setup.py sdist --dist-dir dist
-          python .github/workflows/scripts/verify_tag.py /dist
+          python .github/workflows/scripts/verify_tag.py dist
 
       - name: Upload wheels to release
         # upload the generated wheels to the github release
@@ -332,25 +332,25 @@ jobs:
             tox -e wheel_check -- ${{ matrix.pytest-extra }}
             "
 
-      - name: Upload wheels to release
-        # upload the generated wheels to the github release
-        uses: AButler/upload-release-assets@v2.0
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          files: 'dist/*manylinux*'
+      # - name: Upload wheels to release
+      #   # upload the generated wheels to the github release
+      #   uses: AButler/upload-release-assets@v2.0
+      #   with:
+      #     repo-token: ${{ secrets.GITHUB_TOKEN }}
+      #     files: 'dist/*manylinux*'
 
-      - name: Set up Python
-        uses: actions/setup-python@v2.1.4
-        with:
-          python-version: "3.8"
-          architecture: "x64"
+      # - name: Set up Python
+      #   uses: actions/setup-python@v2.1.4
+      #   with:
+      #     python-version: "3.8"
+      #     architecture: "x64"
 
-      - name: Publish wheel
-        env:
-          TWINE_USERNAME: __token__
-          # replace TWINE_PASSWORD with token for real pypi
-          TWINE_PASSWORD: ${{ secrets.test_pypi_token }}
-          # TWINE_PASSWORD: ${{ secrets.pypi_token }}
-        run: |
-          pip install -U twine
-          twine upload --skip-existing dist/*manylinux*
+      # - name: Publish wheel
+      #   env:
+      #     TWINE_USERNAME: __token__
+      #     # replace TWINE_PASSWORD with token for real pypi
+      #     TWINE_PASSWORD: ${{ secrets.test_pypi_token }}
+      #     # TWINE_PASSWORD: ${{ secrets.pypi_token }}
+      #   run: |
+      #     pip install -U twine
+      #     twine upload --skip-existing dist/*manylinux*
