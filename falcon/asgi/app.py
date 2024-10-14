@@ -22,8 +22,6 @@ from inspect import iscoroutinefunction
 import traceback
 from typing import (
     Any,
-    Awaitable,
-    Callable,
     ClassVar,
     Dict,
     Iterable,
@@ -33,13 +31,15 @@ from typing import (
     Tuple,
     Type,
     TYPE_CHECKING,
-    TypeVar,
     Union,
 )
 
 from falcon import constants
 from falcon import responders
 from falcon import routing
+from falcon._typing import _A_REQ
+from falcon._typing import _A_RESP
+from falcon._typing import _BE
 from falcon._typing import _UNSET
 from falcon._typing import AsgiErrorHandler
 from falcon._typing import AsgiReceive
@@ -93,7 +93,6 @@ _BODILESS_STATUS_CODES = frozenset([100, 101, 204, 304])
 _TYPELESS_STATUS_CODES = frozenset([204, 304])
 
 _FALLBACK_WS_ERROR_CODE = 3011
-_BE = TypeVar('_BE', bound=BaseException)
 
 
 class App(falcon.app.App):
@@ -351,7 +350,9 @@ class App(falcon.app.App):
         'ws_options',
     )
 
-    _error_handlers: Dict[Type[BaseException], AsgiErrorHandler]  # type: ignore[assignment]
+    _error_handlers: Dict[
+        Type[BaseException], AsgiErrorHandler[Request, Response, BaseException]
+    ]  # type: ignore[assignment]
     _middleware: AsyncPreparedMiddlewareResult  # type: ignore[assignment]
     _middleware_ws: AsyncPreparedMiddlewareWsResult
     _request_type: Type[Request]
@@ -862,20 +863,20 @@ class App(falcon.app.App):
     def add_error_handler(
         self,
         exception: Type[_BE],
-        handler: Callable[[Request, Response, _BE, Dict[str, Any]], Awaitable[None]],
+        handler: AsgiErrorHandler[_A_REQ, _A_RESP, _BE],
     ) -> None: ...
 
     @overload
     def add_error_handler(
         self,
-        exception: Union[Type[BaseException], Iterable[Type[BaseException]]],
-        handler: Optional[AsgiErrorHandler] = None,
+        exception: Union[Type[_BE], Iterable[Type[_BE]]],
+        handler: Optional[AsgiErrorHandler[_A_REQ, _A_RESP, _BE]] = None,
     ) -> None: ...
 
     def add_error_handler(  # type: ignore[misc]
         self,
         exception: Union[Type[BaseException], Iterable[Type[BaseException]]],
-        handler: Optional[AsgiErrorHandler] = None,
+        handler: Optional[AsgiErrorHandler[_A_REQ, _A_RESP, _BE]] = None,
     ) -> None:
         """Register a handler for one or more exception types.
 
