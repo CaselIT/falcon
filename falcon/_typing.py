@@ -62,43 +62,50 @@ class _Unset(Enum):
     UNSET = auto()
 
 
+# GENERICS
 _T = TypeVar('_T')
+# there are used to type callables in a way that accept subclasses
+_BE = TypeVar('_BE', bound=BaseException)
+_REQ = TypeVar('_REQ', bound='Request')
+_A_REQ = TypeVar('_A_REQ', bound='AsgiRequest')
+_RESP = TypeVar('_RESP', bound='Response')
+_A_RESP = TypeVar('_A_RESP', bound='AsgiResponse')
+
 _UNSET = _Unset.UNSET
 UnsetOr = Union[Literal[_Unset.UNSET], _T]
 
 Link = Dict[str, str]
 CookieArg = Mapping[str, Union[str, Cookie]]
 # Error handlers
-ErrorHandler = Callable[['Request', 'Response', BaseException, Dict[str, Any]], None]
+ErrorHandler = Callable[[_REQ, _RESP, _BE, Dict[str, Any]], None]
 
 
-class AsgiErrorHandler(Protocol):
+class AsgiErrorHandler(Protocol[_A_REQ, _A_RESP, _BE]):
     async def __call__(
         self,
-        req: AsgiRequest,
-        resp: Optional[AsgiResponse],
-        error: BaseException,
+        req: _A_REQ,
+        resp: Optional[_A_RESP],
+        error: _BE,
         params: Dict[str, Any],
+        /,
         *,
         ws: Optional[WebSocket] = ...,
     ) -> None: ...
 
 
 # Error serializers
-ErrorSerializer = Callable[['Request', 'Response', 'HTTPError'], None]
+ErrorSerializer = Callable[[_REQ, _RESP, 'HTTPError'], None]
 
 # Sinks
 SinkPrefix = Union[str, Pattern[str]]
 
 
-class SinkCallable(Protocol):
-    def __call__(self, req: Request, resp: Response, **kwargs: str) -> None: ...
+class SinkCallable(Protocol[_REQ, _RESP]):
+    def __call__(self, req: _REQ, resp: _RESP, /, **kwargs: str) -> None: ...
 
 
-class AsgiSinkCallable(Protocol):
-    async def __call__(
-        self, req: AsgiRequest, resp: AsgiResponse, **kwargs: str
-    ) -> None: ...
+class AsgiSinkCallable(Protocol[_A_REQ, _A_RESP]):
+    async def __call__(self, req: _A_REQ, resp: _A_RESP, /, **kwargs: str) -> None: ...
 
 
 HeaderMapping = Mapping[str, str]
@@ -111,62 +118,56 @@ RangeSetHeader = Union[Tuple[int, int, int], Tuple[int, int, int, str]]
 
 
 # WSGI
-class ResponderMethod(Protocol):
+class ResponderMethod(Protocol[_REQ, _RESP]):
     def __call__(
         self,
         resource: Resource,
-        req: Request,
-        resp: Response,
+        req: _REQ,
+        resp: _RESP,
+        /,
         **kwargs: Any,
     ) -> None: ...
 
 
-class ResponderCallable(Protocol):
-    def __call__(self, req: Request, resp: Response, **kwargs: Any) -> None: ...
+class ResponderCallable(Protocol[_REQ, _RESP]):
+    def __call__(self, req: _REQ, resp: _RESP, /, **kwargs: Any) -> None: ...
 
 
-ProcessRequestMethod = Callable[['Request', 'Response'], None]
-ProcessResourceMethod = Callable[
-    ['Request', 'Response', Resource, Dict[str, Any]], None
-]
-ProcessResponseMethod = Callable[['Request', 'Response', Resource, bool], None]
+ProcessRequestMethod = Callable[[_REQ, _RESP], None]
+ProcessResourceMethod = Callable[[_REQ, _RESP, Resource, Dict[str, Any]], None]
+ProcessResponseMethod = Callable[[_REQ, _RESP, Resource, bool], None]
 
 
 # ASGI
-class AsgiResponderMethod(Protocol):
+class AsgiResponderMethod(Protocol[_A_REQ, _A_RESP]):
     async def __call__(
         self,
         resource: Resource,
-        req: AsgiRequest,
-        resp: AsgiResponse,
+        req: _A_REQ,
+        resp: _A_RESP,
+        /,
         **kwargs: Any,
     ) -> None: ...
 
 
-class AsgiResponderCallable(Protocol):
-    async def __call__(
-        self, req: AsgiRequest, resp: AsgiResponse, **kwargs: Any
-    ) -> None: ...
+class AsgiResponderCallable(Protocol[_A_REQ, _A_RESP]):
+    async def __call__(self, req: _A_REQ, resp: _A_RESP, /, **kwargs: Any) -> None: ...
 
 
-class AsgiResponderWsCallable(Protocol):
-    async def __call__(
-        self, req: AsgiRequest, ws: WebSocket, **kwargs: Any
-    ) -> None: ...
+class AsgiResponderWsCallable(Protocol[_A_REQ]):
+    async def __call__(self, req: _A_REQ, ws: WebSocket, /, **kwargs: Any) -> None: ...
 
 
 AsgiReceive = Callable[[], Awaitable['AsgiEvent']]
 AsgiSend = Callable[['AsgiSendMsg'], Awaitable[None]]
-AsgiProcessRequestMethod = Callable[['AsgiRequest', 'AsgiResponse'], Awaitable[None]]
+AsgiProcessRequestMethod = Callable[[_A_REQ, _A_RESP], Awaitable[None]]
 AsgiProcessResourceMethod = Callable[
-    ['AsgiRequest', 'AsgiResponse', Resource, Dict[str, Any]], Awaitable[None]
+    [_A_REQ, _A_RESP, Resource, Dict[str, Any]], Awaitable[None]
 ]
-AsgiProcessResponseMethod = Callable[
-    ['AsgiRequest', 'AsgiResponse', Resource, bool], Awaitable[None]
-]
-AsgiProcessRequestWsMethod = Callable[['AsgiRequest', 'WebSocket'], Awaitable[None]]
+AsgiProcessResponseMethod = Callable[[_A_REQ, _A_RESP, Resource, bool], Awaitable[None]]
+AsgiProcessRequestWsMethod = Callable[['_A_REQ', 'WebSocket'], Awaitable[None]]
 AsgiProcessResourceWsMethod = Callable[
-    ['AsgiRequest', 'WebSocket', Resource, Dict[str, Any]], Awaitable[None]
+    [_A_REQ, 'WebSocket', Resource, Dict[str, Any]], Awaitable[None]
 ]
 ResponseCallbacks = Union[
     Tuple[Callable[[], None], Literal[False]],
@@ -182,9 +183,9 @@ MethodDict = Union[
 ]
 
 
-class FindMethod(Protocol):
+class FindMethod(Protocol[_REQ]):
     def __call__(
-        self, uri: str, req: Optional[Request]
+        self, uri: str, req: Optional[_REQ]
     ) -> Optional[Tuple[object, MethodDict, Dict[str, Any], Optional[str]]]: ...
 
 

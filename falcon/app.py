@@ -36,7 +36,6 @@ from typing import (
     Pattern,
     Tuple,
     Type,
-    TypeVar,
     Union,
 )
 import warnings
@@ -45,6 +44,9 @@ from falcon import app_helpers as helpers
 from falcon import constants
 from falcon import responders
 from falcon import routing
+from falcon._typing import _BE
+from falcon._typing import _REQ
+from falcon._typing import _RESP
 from falcon._typing import AsgiResponderCallable
 from falcon._typing import AsgiResponderWsCallable
 from falcon._typing import AsgiSinkCallable
@@ -90,7 +92,6 @@ _TYPELESS_STATUS_CODES = frozenset(
         status.HTTP_304,
     ]
 )
-_BE = TypeVar('_BE', bound=BaseException)
 
 
 class App:
@@ -261,7 +262,9 @@ class App:
     )
 
     _cors_enable: bool
-    _error_handlers: Dict[Type[BaseException], ErrorHandler]
+    _error_handlers: Dict[
+        Type[BaseException], ErrorHandler[Request, Response, BaseException]
+    ]
     _independent_middleware: bool
     _middleware: helpers.PreparedMiddlewareResult
     _request_type: Type[Request]
@@ -817,20 +820,20 @@ class App:
     def add_error_handler(
         self,
         exception: Type[_BE],
-        handler: Callable[[Request, Response, _BE, Dict[str, Any]], None],
+        handler: ErrorHandler[_REQ, _RESP, _BE],
     ) -> None: ...
 
     @overload
     def add_error_handler(
         self,
-        exception: Union[Type[BaseException], Iterable[Type[BaseException]]],
-        handler: Optional[ErrorHandler] = None,
+        exception: Union[Type[_BE], Iterable[Type[_BE]]],
+        handler: Optional[ErrorHandler[_REQ, _RESP, _BE]] = None,
     ) -> None: ...
 
     def add_error_handler(  # type: ignore[misc]
         self,
         exception: Union[Type[BaseException], Iterable[Type[BaseException]]],
-        handler: Optional[ErrorHandler] = None,
+        handler: Optional[ErrorHandler[_REQ, _RESP, _BE]] = None,
     ) -> None:
         """Register a handler for one or more exception types.
 
